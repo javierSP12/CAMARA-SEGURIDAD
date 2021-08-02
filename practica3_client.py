@@ -105,7 +105,7 @@ class VideoClient(object):
 	* ARGS_OUT: Ninguno
 	'''
 	def start(self):
-		self.app.go(startWindow="Register")
+		self.app.go()
 	'''
 	* FUNCIÓN: recibirVideo(self)
 	* ARGS_IN: self: la propia clase
