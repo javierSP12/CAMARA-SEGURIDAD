@@ -29,8 +29,7 @@ class VideoClient(object):
 	def __init__(self, window_size):
 		
 		# inicializamos todos los campos que vamos a necesitar como None
-		self.nombre = None
-		self.PuertoTCP = None
+		self.PuertoTCP = "8000"
 		self.nombreD = None
 		self.puertoTCPD = None
 		self.puertoUDPD = None
@@ -57,6 +56,10 @@ class VideoClient(object):
 		VideoThread.daemon = True 
 		VideoThread.start()
 		
+		thread = threading.Thread(target=VideoClient.ControlServicio, args=(self,))
+		thread.daemon = True
+		thread.start()
+
 	def start(self):
 		self.app.go()
 	def capturaVideo(self):
@@ -87,7 +90,51 @@ class VideoClient(object):
 					datos = encimg
 					# enviamos la información codificada por el socket
 					self.conferencia.sendVideo(datos)
-
+		'''
+	* FUNCIÓN: ControlServicio(self)
+	* ARGS_IN: self: la propia clase
+	* DESCRIPCIÓN: Controla las acciones para inicar, parar, recibir, cerrar una llamada
+	* ARGS_OUT: Ninguno
+	'''
+	def ControlServicio(self):
+		# Iniciamos el socket por el que vamos a hacer el control de la videollamada
+		self.conexionControl = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.conexionControl.bind((self.direccion, int(self.PuertoTCP)))
+		# mietras que no se vaya a cerrar la aplicación recibimos mensajes por el socket
+		while self.fin is False:
+			if self.conexionControl is not None:
+				mensajeRes = ""
+				self.conexionControl.listen(1)
+				try:
+					conn, addr = self.conexionControl.accept()
+				except:
+					return
+				data = conn.recv(1440)
+				# dividimos el mensaje que recibimos
+				mensajeRes = data.decode().split(" ")
+				# Si recibimos calling es que alguien nos está llamando
+				if mensajeRes[0] == "CALLING":
+					self.direccionD = mensajeRes[1]
+					# Almacenamos su direccion, nombre y puerto UDP
+					self.puertoUDPD = mensajeRes[2]
+					
+					# En el caso de que no nos encontremos en llamada
+					if self.conferencia == None:
+							self.conferencia = conferencia.llamada(self.direccion,self.direccionD, self.puertoTCPD, self.PuertoTCP)
+					if self.incall == False:
+						# Inciamos la clase conferenrencia y le establecemos el puerto UDP del usaurio destino
+						self.conferencia.addUDPDestino(self.puertoUDPD)
+					# Si nos encontramos en llamada devolvemos que nos encontramos ocupados
+					else:
+						self.conferencia.BusyCall()
+				# Recibimos que se ha finalizado la llamada
+				elif mensajeRes[0] == "CALL_END":
+					self.incall = False
+					# se cierra la ventana y los sockets y se muestra por pantalla
+					self.app.hideSubWindow("RecibirImagen")
+					self.app.warningBox("finalizada", "LLAMADA FINALIZADA")
+					self.conferencia.cerrarSockects()
+					self.conferencia = None
 if __name__ == '__main__':
 
 	vc = VideoClient("640x520")

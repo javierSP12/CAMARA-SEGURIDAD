@@ -17,13 +17,11 @@ class llamada:
     * DESCRIPCIÓN: En esta funcion se almacenan en la clase los paramentros de entrada pasados como argumento
     * ARGS_OUT: Ninguno
     '''
-    def __init__(self, ip,nickDest, nickUsuario,ipDest, puertoDest, puertoUsuario):
+    def __init__(self, ip, ipDest, puertoDest, puertoUsuario):
         # guardar los parametros de entrada en clase
         self.myIP = ip
-        self.myNick = nickUsuario
         self.myPuertoUDP=0 
         self.ipDest=ipDest
-        self.nickDest=nickDest
         self.puertoDTCP=puertoDest
         self.DestPuertoUDP = 0
         self.puertoDUDP = 0
@@ -60,7 +58,7 @@ class llamada:
     def AcceptCall(self):
         # Creamos el socket para la ip y puerto del usuario destino para poder enviarle la info 
         self.conexionControl = CrearSocket.crearSocketTCPControl(self.ipDest, int(self.puertoDTCP))
-        mensaje = "CALL_ACCEPTED " + self.myNick + " " + "5100"
+        mensaje = "CALL_ACCEPTED " + self.myIP + " " + "5100"
         self.myPuertoUDP = 5100 # guardamos el puerto UDP que va a utilizar el usuario llamante
         men = mensaje.encode()
         self.conexionControl.send(men) # enviamos el mensaje de CALL_ACCEPTED por el socket
@@ -118,7 +116,7 @@ class llamada:
     def EndCall(self):
         # Creamos el socket para la ip y puerto del usuario destino para poder enviarle la info
         self.conexionControl = CrearSocket.crearSocketTCPControl(self.ipDest, int(self.puertoDTCP))
-        mensaje = "CALL_END " + self.myNick
+        mensaje = "CALL_END " + self.myIP
         men = mensaje.encode()
         self.conexionControl.send(men) # enviamos el mensaje de CALL_END por el socket
         self.conexionControl.close() # cerramos el socket
