@@ -126,8 +126,8 @@ class VideoClient(object):
 				# Conversión de formato para su uso en el GUI
 				cv2_im = cv2.cvtColor(decimg,cv2.COLOR_BGR2RGB)
 				img_tk = ImageTk.PhotoImage(Image.fromarray(cv2_im))
-				self.app.setImageSize("VideoR", 640, 480)
-				self.app.setImageData("VideoR", img_tk, fmt = 'PhotoImage')
+				self.app.setImageSize("video", 640, 480)
+				self.app.setImageData("video", img_tk, fmt = 'PhotoImage')
 			
 	'''
 	* FUNCIÓN: capturaVideo(self)

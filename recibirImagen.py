@@ -29,14 +29,11 @@ class VideoClient(object):
 	def __init__(self, window_size):
 		
 		# inicializamos todos los campos que vamos a necesitar como None
-		self.nombre = None
-		self.PuertoTCP = None
-		self.nombreD = None
-		self.puertoTCPD = None
-		self.puertoUDPD = None
-		self.direccionD = None
-		self.direccion = None
-		self.contrasena = None
+		self.PuertoTCP = "8000"
+		self.puertoTCPD = "8000"
+		self.puertoUDPD = "6000"
+		self.direccionD = "192.168.1.22"
+		self.direccion = "192.168.1.146"
 		self.conexionControl = None
 		self.incall = False
 		self.pausa = False
@@ -49,19 +46,24 @@ class VideoClient(object):
 		# Preparación del interfaz
 		self.app.addLabel("title", "Cliente Multimedia P2P - Redes2 ")
 		self.app.addImage("video", "imgs/webcam.gif")
-
+		if self.conferencia == None:
+			self.conferencia = conferencia.llamada(self.direccion, self.direccionD, self.puertoTCPD, self.PuertoTCP)
+		self.conferencia.InicioLlamada()
+		self.incall = True
+		RecVideo = threading.Thread(target=self.conferencia.RecVideo) # inicializamos el hilo que recibirá los datos y los mete en el buffer
+		recibirVideo = threading.Thread(target=self.recibirVideo) # inicializamos el hilo que nos mostrará las imagenes en la subventana
+		# Lanza los hilos
+		RecVideo.start()
+		time.sleep(1)
+		recibirVideo.start()
+		self.app.show()
 		# Registramos la función de captura de video
 		# Esta misma función también sirve para enviar un vídeo
-		self.cap = cv2.VideoCapture(0)
-		VideoThread = threading.Thread(target=self.capturaVideo) # creamos el hilo que se va a encargar de capturar y enviar el video
-		VideoThread.daemon = True 
-		VideoThread.start()
 		
 	def start(self):
 		self.app.go()
 def recibirVideo(self):
 		# Mostramos la subventana de recibir imagen
-		self.app.showSubWindow("RecibirImagen")
 		# Mientras que nos encontremos en una llamada y está no esté en pausa
 		# extraemos los elementos del buffer (cola) y los convertimos en imagenes
 		while self.incall == True:
@@ -73,8 +75,8 @@ def recibirVideo(self):
 				# Conversión de formato para su uso en el GUI
 				cv2_im = cv2.cvtColor(decimg,cv2.COLOR_BGR2RGB)
 				img_tk = ImageTk.PhotoImage(Image.fromarray(cv2_im))
-				self.app.setImageSize("VideoR", 640, 480)
-				self.app.setImageData("VideoR", img_tk, fmt = 'PhotoImage')
+				self.app.setImageSize("video", 640, 480)
+				self.app.setImageData("video", img_tk, fmt = 'PhotoImage')
 
 if __name__ == '__main__':
 

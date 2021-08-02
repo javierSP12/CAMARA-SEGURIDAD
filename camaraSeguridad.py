@@ -30,12 +30,10 @@ class VideoClient(object):
 		
 		# inicializamos todos los campos que vamos a necesitar como None
 		self.PuertoTCP = "8000"
-		self.nombreD = None
-		self.puertoTCPD = None
-		self.puertoUDPD = None
+		self.puertoTCPD = "8000"
+		self.puertoUDPD = "6000"
 		self.direccionD = None
-		self.direccion = None
-		self.contrasena = None
+		self.direccion = "192.168.1.22"
 		self.conexionControl = None
 		self.incall = False
 		self.pausa = False
